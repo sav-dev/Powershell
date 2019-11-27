@@ -3,17 +3,77 @@ function npp($path)
 	& "C:\Program Files (x86)\Notepad++\notepad++.exe" $path
 }
 
+function ProcessMemorySizes
+{
+  $banks = @(
+    "Bank0", 
+    "Bank1", 
+    "Bank2", 
+    "Bank3")
+  
+  $modules = @(
+    "BackgroundManager",
+    "BulletController",
+    "CollisionManager",
+    "ControllerManager",
+    "DoorManager",
+    "ElevatorManager",
+    "EnemiesManager",
+    "ExplosionsController",
+    "LevelManager",
+    "PaletteManager",
+    "PlayerController",
+    "StateGame",
+    "Enemies")
+  
+  $lines = Get-Content "platform.fns"
+  $addresses = @{}
+  
+  foreach ($line in $lines)
+  {
+    if (-not $line.Contains("="))
+    {
+        continue
+    }
+    
+    $splitted = $line.Split('=')
+    $key = $splitted[0].Trim()
+    $valueRaw = $splitted[1].Trim().Substring(1) 
+    $valueParsed = [System.Convert]::ToInt32($valueRaw, 16)
+    $addresses.Add($key, $valueParsed)
+  }
+  
+  $targetFile = "memorySizes.txt"
+  $result = @()
+  
+  foreach ($bank in $banks)
+  {
+    $start = $addresses[$bank + "Start"]
+    $end = $addresses[$bank + "End"]
+    $size = $end - $start
+    $result += "$bank`: $size"
+  }
+  
+  $result += ""
+  
+  foreach ($module in $modules)
+  {
+    $start = $addresses[$module + "Start"]
+    $end = $addresses[$module + "End"]
+    $size = $end - $start
+    $result += "$module`: $size"
+  }
+  
+  $result > $targetFile
+}
+
 function processZeroPage
 {
   $lines = Get-Content ".\inc\zeroPage.asm" | ? { $_.Contains(".rs ") };
   $total = 0;
   
   $targetFile = "zeroPage.txt"
-  if ([System.IO.File]::Exists($targetFile))
-  {
-    [System.IO.File]::Delete($targetFile)
-  }
-
+  
   $order = New-Object System.Collections.Specialized.OrderedDictionary
   
   foreach ($line in $lines)
@@ -81,6 +141,7 @@ function Assemble
 	& "C:\users\tomas\Documents\NES\Tools\NESASM\nesasm3.exe" $file
   
   processZeroPage
+  ProcessMemorySizes
 }
 
 function Run([Switch]$NoAssembly)
