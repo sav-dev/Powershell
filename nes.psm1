@@ -3,29 +3,10 @@ function npp($path)
 	& "C:\Program Files (x86)\Notepad++\notepad++.exe" $path
 }
 
-function ProcessMemorySizes
+function ProcessMemorySizes($banksFile, $modulesFile)
 {
-  $banks = @(
-    "Bank0", 
-    "Bank1", 
-    "Bank2", 
-    "Bank3")
-  
-  $modules = @(
-    "BackgroundManager",
-    "BulletController",
-    "CollisionManager",
-    "ControllerManager",
-    "DoorManager",
-    "ElevatorManager",
-    "EnemiesManager",
-    "ExplosionsController",
-    "LevelManager",
-    "PaletteManager",
-    "PlayerController",
-    "StateGame",
-    "Enemies")
-  
+  $banks = Get-Content $banksFile
+  $modules = Get-Content $modulesFile
   $lines = Get-Content "platform.fns"
   $addresses = @{}
   
@@ -141,7 +122,7 @@ function Assemble
 	& "C:\users\tomas\Documents\NES\Tools\NESASM\nesasm3.exe" $file
   
   processZeroPage
-  ProcessMemorySizes
+  ProcessMemorySizes "banks.txt" "modules.txt"
 }
 
 function Run([Switch]$NoAssembly)
