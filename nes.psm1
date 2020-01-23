@@ -3,11 +3,11 @@ function npp($path)
 	& "C:\Program Files (x86)\Notepad++\notepad++.exe" $path
 }
 
-function ProcessMemorySizes($banksFile, $modulesFile)
+function ProcessMemorySizes($banksFile, $modulesFile, $fnsFile)
 {
   $banks = Get-Content $banksFile
   $modules = Get-Content $modulesFile
-  $lines = Get-Content "platform.fns"
+  $lines = Get-Content $fnsFile
   $addresses = @{}
   
   foreach ($line in $lines)
@@ -121,8 +121,10 @@ function Assemble
 	
 	& "C:\users\tomas\Documents\NES\Tools\NESASM\nesasm3.exe" $file
   
+  $fnsFile = $file.Substring(0, $file.Length - 3) + "fns"
+  
   processZeroPage
-  ProcessMemorySizes "banks.txt" "modules.txt"
+  ProcessMemorySizes "banks.txt" "modules.txt" $fnsFile
 }
 
 function Run([Switch]$NoAssembly)
