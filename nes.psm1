@@ -3,6 +3,18 @@ function npp($path)
 	& "C:\Program Files (x86)\Notepad++\notepad++.exe" $path
 }
 
+function ProcessSound
+{
+  $soundAsm = ".\sound\sound.asm"
+  $soundTxt = ".\sound\sound.txt"
+  if (Test-Path $soundAsm)
+	{
+		del $soundAsm
+	}
+  
+  . ".\ggsound\ft_txt_to_asm.py" $soundTxt
+}
+
 function ProcessMemorySizes($banksFile, $modulesFile, $fnsFile)
 {
   $banks = Get-Content $banksFile
@@ -112,17 +124,19 @@ function Assemble
 	{
 		return
 	}
-	
+
+  ProcessSound
+  
 	$rom = AsmToNes $file
 	if (Test-Path $rom)
 	{
 		del $rom
-	}
+	} 
 	
 	& "C:\users\tomas\Documents\NES\Tools\NESASM\nesasm3.exe" $file
   
   $fnsFile = $file.Substring(0, $file.Length - 3) + "fns"
-  
+    
   processZeroPage
   ProcessMemorySizes "banks.txt" "modules.txt" $fnsFile
 }
