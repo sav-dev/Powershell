@@ -13,6 +13,16 @@ function ProcessSound
 	}
   
   . ".\ggsound\ft_txt_to_asm.py" $soundTxt
+  
+  while ($true)
+  {
+    Start-Sleep -s 1
+    
+    if (Test-Path $soundAsm)
+    {
+      return
+    }
+  }
 }
 
 function ProcessMemorySizes($banksFile, $modulesFile, $fnsFile)
